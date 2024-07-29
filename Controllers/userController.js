@@ -1,10 +1,15 @@
 const asyncHandler = require('express-async-handler');
 const { body, validationResult } = require("express-validator");
+const User = require('../Models/user')
 const axios = require('axios');
+const { userJwtSecret } = require('../config')
 const fs = require('fs');
 const path = require('path');
+const jwt = require('jsonwebtoken');
 const Replicate = require('replicate');
 const { REPLICATE_API_KEY } = require('../config');
+const bcrypt = require('bcrypt');
+
 
 const IMAGE_DIR = path.join(__dirname, '../images'); // Adjust path to your public directory
 
@@ -28,7 +33,6 @@ exports.image_generate = [
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
         }
-        console.log('1    ......')
 
         const { prompt } = req.body;
 
@@ -53,38 +57,26 @@ exports.image_generate = [
             //         }
             //     }
             // );
-            console.log('2    ......')
-            async function imageUrlToBase64(url) {
-                try {
-                    console.log('4    ......')
-                    const response = await axios.get(url, { responseType: 'arraybuffer' });
-                    console.log('5    ......')
-                    const base64 = Buffer.from(response.data, 'binary').toString('base64');
-                    console.log('6    ......')
-                    return `data:image/png;base64,${base64}`;
-                } catch (error) {
-                    console.error('Error converting image to Base64:', error);
-                    return null;
-                }
-            }
 
-            const imageUrl = 'https://replicate.delivery/pbxt/8FkqNEq31X4fDKKNZSyeZfOpz8sKBRfLi3elNHPyKKqQewKzE/out-0.png';
-            console.log('3    ......')
-
-            try {
-                const base64String = await imageUrlToBase64(imageUrl);
-                res.status(200).json({ filePath: base64String });
-            } catch (error) {
-                console.error('Error generating image:', error.message);
-                res.status(500).json({ error: 'Error generating image' });
-            }
-            // const imageUrl = "https://replicate.delivery/pbxt/8FkqNEq31X4fDKKNZSyeZfOpz8sKBRfLi3elNHPyKKqQewKzE/out-0.png";
+            // const imageUrl = output[0]
+            const imageUrl = 'https://files.cdn.printful.com/o/upload/variant-image/10/10189fe28c2138b039a32d0096f853f0_l';
+            res.status(200).json({ filePath: imageUrl });
         } catch (error) {
             console.error('Error generating image:', error);
             res.status(500).json({ error: 'Error generating image' });
         }
     })
 ];
+// async function imageUrlToBase64(url) {
+//     try {
+//         const response = await axios.get(url, { responseType: 'arraybuffer' });
+//         const base64 = Buffer.from(response.data, 'binary').toString('base64');
+//         return `data:image/png;base64,${base64}`;
+//     } catch (error) {
+//         console.error('Error converting image to Base64:', error);
+//         return null;
+//     }
+// }
 
 // const response = await axios({
 //     url: imageUrl,
@@ -125,12 +117,10 @@ exports.user_create = [
         .isLength({ min: 8 })
         .withMessage('Password must be at least 8 characters'),
     asyncHandler(async (req, res, next) => {
-        console.log(req.body);
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
         }
-
         const user = await User.findOne({ email: req.body.email });
         if (user) {
             return res.status(400).json({ errors: [{ param: 'email', msg: 'Email already used' }] });
@@ -168,10 +158,12 @@ exports.user_login = [
             return res.status(400).json({ errors: errors.array() });
         }
         const user = await User.findOne({ email: req.body.email })
-        if (!user)
+        if (!user) {
             return res.status(400).json({ err: "User not found" });
+        }
         const pwdCompare = await bcrypt.compare(req.body.password, user.password);
         if (!pwdCompare) {
+
             return res.status(400).json({ errors: "Incorrect credentials" });
         }
         const userToken = jwt.sign({

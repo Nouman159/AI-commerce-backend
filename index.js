@@ -1,8 +1,9 @@
 const express = require('express');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const path = require('path');
-const { createProxyMiddleware } = require('http-proxy-middleware');
 const mongodb = require('./conn');
+const multer = require('multer');
 const userRoutes = require('./Routes/users');
 const { PORT } = require('./config');
 
@@ -14,24 +15,11 @@ const corsOptions = {
     credentials: true,
 };
 
+app.use(cookieParser());
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-
-// Serve the images directory statically
-const IMAGE_DIR = path.join(__dirname, '/images');
-app.use('/images', (req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "*"); // or specify your domain
-    next();
-});
-// app.use('/images', createProxyMiddleware({
-//     target: 'http://your-image-server.com',
-//     changeOrigin: true,
-//     onProxyRes: (proxyRes) => {
-//       proxyRes.headers['Access-Control-Allow-Origin'] = '*';
-//     }
-//   }));
-app.use('/images', express.static(IMAGE_DIR));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Routes
 app.use('/user', userRoutes);
