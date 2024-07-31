@@ -37,6 +37,7 @@ exports.image_generate = [
         const { prompt } = req.body;
 
         try {
+
             // const output = await replicate.run(
             //     "stability-ai/sdxl:7762fd07cf82c948538e41f63f77d685e02b063e37e496e96eefd46c929f9bdc",
             //     {
@@ -59,6 +60,7 @@ exports.image_generate = [
             // );
 
             // const imageUrl = output[0]
+
             const imageUrl = 'https://files.cdn.printful.com/o/upload/variant-image/10/10189fe28c2138b039a32d0096f853f0_l';
             res.status(200).json({ filePath: imageUrl });
         } catch (error) {
@@ -67,36 +69,6 @@ exports.image_generate = [
         }
     })
 ];
-// async function imageUrlToBase64(url) {
-//     try {
-//         const response = await axios.get(url, { responseType: 'arraybuffer' });
-//         const base64 = Buffer.from(response.data, 'binary').toString('base64');
-//         return `data:image/png;base64,${base64}`;
-//     } catch (error) {
-//         console.error('Error converting image to Base64:', error);
-//         return null;
-//     }
-// }
-
-// const response = await axios({
-//     url: imageUrl,
-//     responseType: 'stream'
-// });
-
-// const fileName = `image_${Date.now()}.png`;
-// const filePath = path.join(IMAGE_DIR, fileName);
-// const writer = fs.createWriteStream(filePath);
-// response.data.pipe(writer);
-
-// writer.on('finish', () => {
-//     // Step 3: Send the file path to the client
-//     res.status(200).json({ filePath: `http://localhost:5000/images/${fileName}` });
-// });
-
-// writer.on('error', (err) => {
-//     console.error('Error saving image:', err);
-//     res.status(500).json({ error: 'Error saving image' });
-// });
 
 exports.user_create = [
     body('username')
@@ -141,7 +113,6 @@ exports.user_create = [
         }
     })
 ];
-
 
 //Login
 exports.user_login = [
