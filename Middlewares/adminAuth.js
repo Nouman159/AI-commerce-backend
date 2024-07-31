@@ -25,7 +25,7 @@ const adminLogout = (req, res) => {
     try {
         const decoded = jwt.verify(token, adminJwtSecret);
         req.user = decoded;
-        res.clearCookie("userToken");
+        res.clearCookie("adminToken");
         return res.status(200).json({ isLogout: true });
     }
     catch (er) {

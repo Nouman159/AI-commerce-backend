@@ -9,6 +9,10 @@ const cartItemSchema = new mongoose.Schema({
             price: { type: Number, required: true },
         }
     ],
+    status: {
+        type: String,
+        default: 'added_to_cart'
+    },
     createdAt: { type: Date, default: Date.now }
 });
 

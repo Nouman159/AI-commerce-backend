@@ -27,7 +27,7 @@ exports.add_to_cart = [
         const { userId, finalImage, quantity, price } = req.body;
 
         try {
-            let cart = await CartItem.findOne({ userId });
+            let cart = await CartItem.findOne({ userId, status: "added_to_cart" })
 
             if (!cart) {
                 cart = new CartItem({ userId, items: [] });
@@ -64,3 +64,78 @@ exports.getCartByUserId = async (req, res) => {
         res.status(500).json({ error: 'Error retrieving cart' });
     }
 };
+
+exports.getAllCartItems = async (req, res) => {
+    try {
+        const cartItems = await CartItem.find({ status: "added_to_cart" })
+            .populate({
+                path: 'userId',
+                select: 'username email'
+            });
+
+        if (!cartItems.length) {
+            return res.status(404).json({ error: 'No items with status "added_to_cart".' });
+        }
+
+        res.status(200).json({ cart: cartItems });
+    } catch (error) {
+        console.error('Error retrieving cart items:', error);
+        res.status(500).json({ error: 'Error retrieving cart items' });
+    }
+};
+
+exports.getAllAfterPaymentItems = async (req, res) => {
+    try {
+        const cartItems = await CartItem.find({ status: "payment_done" })
+            .populate({
+                path: 'userId',
+                select: 'username email'
+            });
+
+        if (!cartItems.length) {
+            return res.status(404).json({ error: 'No items with status "payment_done".' });
+        }
+
+        res.status(200).json({ cart: cartItems });
+    } catch (error) {
+        console.error('Error retrieving cart items:', error);
+        res.status(500).json({ error: 'Error retrieving cart items' });
+    }
+};
+
+exports.getAllCompletedOrders = async (req, res) => {
+    try {
+        const cartItems = await CartItem.find({ status: "completed" })
+            .populate({
+                path: 'userId',
+                select: 'username email'
+            });
+
+        if (!cartItems.length) {
+            return res.status(404).json({ error: 'No items with status "completed".' });
+        }
+
+        res.status(200).json({ cart: cartItems });
+    } catch (error) {
+        console.error('Error retrieving cart items:', error);
+        res.status(500).json({ error: 'Error retrieving cart items' });
+    }
+};
+
+exports.getCartItemCounts = async (req, res) => {
+    try {
+        const addedToCartCount = await CartItem.countDocuments({ status: "added_to_cart" });
+        const paymentDoneCount = await CartItem.countDocuments({ status: "payment_done" });
+        const completedCount = await CartItem.countDocuments({ status: "completed" });
+
+        res.status(200).json({
+            addedToCartCount,
+            paymentDoneCount,
+            completedCount
+        });
+    } catch (error) {
+        console.error('Error retrieving cart item counts:', error);
+        res.status(500).json({ error: 'Error retrieving cart item counts' });
+    }
+};
+
