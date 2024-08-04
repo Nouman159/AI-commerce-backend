@@ -44,7 +44,7 @@ exports.image_generate = [
             //         input: {
             //             width: 768,
             //             height: 768,
-            //             prompt: "Extra large size shirt, straight front complete part covering 85% height and 80% width of image " + prompt + " No person, mannequin, or human elements, white background only. Front part instance only",
+            //             prompt: "Large size shirt, straight front complete part covering most of area " + prompt + " No person, mannequin, or human elements, white background only. Front part instance only",
             //             refine: "expert_ensemble_refiner",
             //             scheduler: "K_EULER",
             //             lora_scale: 0.6,
@@ -52,7 +52,7 @@ exports.image_generate = [
             //             guidance_scale: 7.5,
             //             apply_watermark: false,
             //             high_noise_frac: 0.8,
-            //             negative_prompt: "Don't include persons, more than 1 shirt or more than 1 versions of a shirt",
+            //             negative_prompt: "Don't include persons,mannequin, or human elements, more than 1 shirt or more than 1 versions of a shirt or any thing other than shirt front part",
             //             prompt_strength: 0.8,
             //             num_inference_steps: 25
             //         }
